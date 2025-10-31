@@ -1,0 +1,134 @@
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.transfer-container {
+  display: grid;
+  gap: 2rem;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.card h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Transfer Preview */
+.transfer-preview {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.preview-item {
+  background-color: var(--light-bg);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 2px solid var(--border-color);
+}
+
+.beneficio-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0.5rem 0 1rem 0;
+}
+
+.saldo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.saldo-info > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 0.25rem;
+}
+
+.saldo-info .label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.saldo-info .value {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.transfer-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.arrow {
+  font-size: 3rem;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--success-color);
+  background-color: var(--light-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: 2px solid var(--success-color);
+}
+
+/* Info List */
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+}
+
+.info-list li {
+  padding: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .transfer-preview {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .transfer-arrow {
+    transform: rotate(90deg);
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+
+

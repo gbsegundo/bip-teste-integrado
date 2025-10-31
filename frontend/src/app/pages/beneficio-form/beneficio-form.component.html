@@ -1,0 +1,323 @@
+<div class="container py-4 fade-in">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/beneficios" class="text-decoration-none">
+              <i class="bi bi-house-door"></i> Home
+            </a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/beneficios" class="text-decoration-none">Benefícios</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            {{ isEditMode() ? 'Editar' : 'Novo' }}
+          </li>
+        </ol>
+      </nav>
+
+      <!-- Page Header -->
+      <div class="page-header mb-4">
+        <div class="d-flex align-items-center mb-2">
+          @if (isEditMode()) {
+            <div class="icon-circle bg-primary bg-opacity-10 text-primary me-3">
+              <i class="bi bi-pencil-square fs-3"></i>
+            </div>
+            <div>
+              <h1 class="h2 mb-0">Editar Benefício</h1>
+              <p class="text-muted mb-0">Atualize as informações do benefício</p>
+            </div>
+          } @else {
+            <div class="icon-circle bg-success bg-opacity-10 text-success me-3">
+              <i class="bi bi-plus-circle fs-3"></i>
+            </div>
+            <div>
+              <h1 class="h2 mb-0">Novo Benefício</h1>
+              <p class="text-muted mb-0">Cadastre um novo benefício no sistema</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Alert Success -->
+      @if (success()) {
+        <div class="alert alert-success alert-dismissible fade show slide-in-right" role="alert">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          <strong>Sucesso!</strong> {{ success() }}
+          <button type="button" class="btn-close" (click)="success.set(null)"></button>
+        </div>
+      }
+
+      <!-- Alert Error -->
+      @if (error()) {
+        <div class="alert alert-danger alert-dismissible fade show slide-in-right" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <strong>Erro!</strong> {{ error() }}
+          <button type="button" class="btn-close" (click)="error.set(null)"></button>
+        </div>
+      }
+
+      <!-- Loading Overlay -->
+      @if (loading()) {
+        <div class="loading-overlay">
+          <div class="text-center">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+              <span class="visually-hidden">Carregando...</span>
+            </div>
+            <p class="text-muted">
+              {{ isEditMode() ? 'Carregando benefício...' : 'Salvando...' }}
+            </p>
+          </div>
+        </div>
+      }
+
+      <!-- Form Card -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+          <form [formGroup]="form" (ngSubmit)="salvar()">
+            
+            <!-- Nome do Benefício -->
+            <div class="mb-4">
+              <label for="nome" class="form-label fw-semibold">
+                <i class="bi bi-tag text-primary me-2"></i>
+                Nome do Benefício <span class="text-danger">*</span>
+              </label>
+              <div class="input-group has-validation">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-wallet2 text-muted"></i>
+                </span>
+                <input
+                  type="text"
+                  id="nome"
+                  class="form-control border-start-0 ps-0"
+                  [class.is-invalid]="isFieldInvalid('nome')"
+                  [class.is-valid]="form.get('nome')?.valid && form.get('nome')?.touched"
+                  formControlName="nome"
+                  placeholder="Ex: Vale Alimentação"
+                  maxlength="100"
+                >
+                @if (isFieldInvalid('nome')) {
+                  <div class="invalid-feedback">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    {{ getFieldError('nome') }}
+                  </div>
+                }
+              </div>
+              <div class="form-text">
+                <i class="bi bi-info-circle me-1"></i>
+                Dê um nome claro e descritivo para o benefício
+              </div>
+            </div>
+
+            <!-- Descrição -->
+            <div class="mb-4">
+              <label for="descricao" class="form-label fw-semibold">
+                <i class="bi bi-file-text text-info me-2"></i>
+                Descrição
+              </label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-card-text text-muted"></i>
+                </span>
+                <textarea
+                  id="descricao"
+                  class="form-control border-start-0 ps-0"
+                  [class.is-valid]="form.get('descricao')?.valid && form.get('descricao')?.touched"
+                  formControlName="descricao"
+                  rows="3"
+                  placeholder="Descreva detalhes sobre o benefício (opcional)"
+                  maxlength="255"
+                ></textarea>
+              </div>
+              <div class="form-text d-flex justify-content-between">
+                <span>
+                  <i class="bi bi-info-circle me-1"></i>
+                  Campo opcional - máximo 255 caracteres
+                </span>
+                <span class="text-muted">
+                  {{ form.get('descricao')?.value?.length || 0 }}/255
+                </span>
+              </div>
+            </div>
+
+            <!-- Valor -->
+            <div class="mb-4">
+              <label for="valor" class="form-label fw-semibold">
+                <i class="bi bi-currency-dollar text-success me-2"></i>
+                Valor (R$) <span class="text-danger">*</span>
+              </label>
+              <div class="input-group has-validation">
+                <span class="input-group-text bg-light">
+                  <i class="bi bi-cash-stack text-success"></i>
+                </span>
+                <span class="input-group-text bg-light border-start-0 border-end-0 px-2">R$</span>
+                <input
+                  type="number"
+                  id="valor"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('valor')"
+                  [class.is-valid]="form.get('valor')?.valid && form.get('valor')?.touched"
+                  formControlName="valor"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                >
+                @if (isFieldInvalid('valor')) {
+                  <div class="invalid-feedback">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    {{ getFieldError('valor') }}
+                  </div>
+                }
+              </div>
+              @if (form.get('valor')?.value > 0) {
+                <div class="form-text text-success fw-semibold">
+                  <i class="bi bi-check-circle-fill me-1"></i>
+                  Valor formatado: {{ formatarValor() }}
+                </div>
+              }
+            </div>
+
+            <!-- Status (Ativo/Inativo) -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold d-block">
+                <i class="bi bi-toggle-on text-warning me-2"></i>
+                Status do Benefício
+              </label>
+              <div class="form-check form-switch form-check-lg">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="ativo"
+                  formControlName="ativo"
+                  style="cursor: pointer;"
+                >
+                <label class="form-check-label" for="ativo" style="cursor: pointer;">
+                  @if (form.get('ativo')?.value) {
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
+                      <i class="bi bi-check-circle-fill me-1"></i>
+                      Benefício Ativo
+                    </span>
+                  } @else {
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2">
+                      <i class="bi bi-x-circle-fill me-1"></i>
+                      Benefício Inativo
+                    </span>
+                  }
+                </label>
+              </div>
+              <div class="form-text">
+                <i class="bi bi-lightbulb me-1"></i>
+                Apenas benefícios ativos podem ser usados em transferências
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="my-4">
+
+            <!-- Preview Card -->
+            @if (form.get('nome')?.value) {
+              <div class="alert alert-light border mb-4 preview-card">
+                <h6 class="alert-heading d-flex align-items-center mb-3">
+                  <i class="bi bi-eye text-primary me-2"></i>
+                  Pré-visualização
+                </h6>
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h5 class="mb-1">{{ form.get('nome')?.value }}</h5>
+                    <p class="text-muted mb-2 small">
+                      {{ form.get('descricao')?.value || 'Sem descrição' }}
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <div class="fs-4 fw-bold text-success">
+                      {{ formatarValor() }}
+                    </div>
+                    @if (form.get('ativo')?.value) {
+                      <span class="badge bg-success">Ativo</span>
+                    } @else {
+                      <span class="badge bg-secondary">Inativo</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-lg"
+                routerLink="/beneficios"
+                [disabled]="loading()"
+              >
+                <i class="bi bi-arrow-left me-2"></i>
+                Cancelar
+              </button>
+              
+              <button
+                type="submit"
+                class="btn btn-lg"
+                [class.btn-primary]="!isEditMode()"
+                [class.btn-success]="isEditMode()"
+                [disabled]="loading() || form.invalid"
+              >
+                @if (loading()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Salvando...
+                } @else {
+                  @if (isEditMode()) {
+                    <i class="bi bi-check-circle me-2"></i>
+                    Atualizar Benefício
+                  } @else {
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Criar Benefício
+                  }
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Info Cards -->
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card border-0 bg-info bg-opacity-10 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-info-circle-fill text-info fs-3 me-3"></i>
+                <div>
+                  <h6 class="card-title fw-semibold mb-2">Dica</h6>
+                  <p class="card-text small mb-0">
+                    Campos marcados com <span class="text-danger">*</span> são obrigatórios
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card border-0 bg-warning bg-opacity-10 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-shield-check text-warning fs-3 me-3"></i>
+                <div>
+                  <h6 class="card-title fw-semibold mb-2">Segurança</h6>
+                  <p class="card-text small mb-0">
+                    Todas as validações são feitas no servidor
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

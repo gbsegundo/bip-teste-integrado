@@ -1,0 +1,211 @@
+<div class="page-header">
+  <h2>💸 Transferência de Valores</h2>
+</div>
+
+@if (success()) {
+  <div class="alert alert-success mb-3">
+    {{ success() }}
+  </div>
+}
+
+@if (error()) {
+  <div class="alert alert-error mb-3">
+    <strong>Erro:</strong> {{ error() }}
+  </div>
+}
+
+@if (loadingBeneficios()) {
+  <div class="card">
+    <div class="card-body text-center p-4">
+      <div class="spinner"></div>
+      <p class="mt-2">Carregando benefícios...</p>
+    </div>
+  </div>
+} @else if (beneficios().length < 2) {
+  <div class="card">
+    <div class="card-body text-center p-4">
+      <p class="text-secondary">
+        É necessário ter pelo menos 2 benefícios ativos para realizar transferências.
+      </p>
+      <a routerLink="/beneficios/novo" class="btn btn-primary mt-2">
+        ➕ Criar Novo Benefício
+      </a>
+    </div>
+  </div>
+} @else {
+  <div class="transfer-container">
+    <!-- Formulário -->
+    <div class="card">
+      <div class="card-header">
+        <h3>📝 Dados da Transferência</h3>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="transferir()">
+          <!-- Origem -->
+          <div class="form-group">
+            <label class="form-label" for="fromId">
+              De (Origem) <span class="text-danger">*</span>
+            </label>
+            <select
+              id="fromId"
+              class="form-control"
+              [class.error]="isFieldInvalid('fromId')"
+              formControlName="fromId"
+            >
+              <option value="">Selecione o benefício de origem</option>
+              @for (beneficio of beneficios(); track beneficio.id) {
+                <option [value]="beneficio.id">
+                  {{ beneficio.nome }} - {{ formatarValor(beneficio.valor) }}
+                </option>
+              }
+            </select>
+            @if (isFieldInvalid('fromId')) {
+              <div class="form-error">{{ getFieldError('fromId') }}</div>
+            }
+          </div>
+
+          <!-- Destino -->
+          <div class="form-group">
+            <label class="form-label" for="toId">
+              Para (Destino) <span class="text-danger">*</span>
+            </label>
+            <select
+              id="toId"
+              class="form-control"
+              [class.error]="isFieldInvalid('toId')"
+              formControlName="toId"
+            >
+              <option value="">Selecione o benefício de destino</option>
+              @for (beneficio of beneficios(); track beneficio.id) {
+                <option [value]="beneficio.id">
+                  {{ beneficio.nome }} - {{ formatarValor(beneficio.valor) }}
+                </option>
+              }
+            </select>
+            @if (isFieldInvalid('toId')) {
+              <div class="form-error">{{ getFieldError('toId') }}</div>
+            }
+          </div>
+
+          <!-- Valor -->
+          <div class="form-group">
+            <label class="form-label" for="amount">
+              Valor (R$) <span class="text-danger">*</span>
+            </label>
+            <input
+              id="amount"
+              type="number"
+              step="0.01"
+              min="0.01"
+              class="form-control"
+              [class.error]="isFieldInvalid('amount')"
+              formControlName="amount"
+              placeholder="0.00"
+            >
+            @if (isFieldInvalid('amount')) {
+              <div class="form-error">{{ getFieldError('amount') }}</div>
+            }
+          </div>
+
+          <!-- Botões -->
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn btn-success"
+              [disabled]="loading() || form.invalid"
+            >
+              @if (loading()) {
+                <span class="spinner"></span>
+              }
+              💸 Realizar Transferência
+            </button>
+            
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="form.reset(); selectedFrom.set(null); selectedTo.set(null)"
+            >
+              🔄 Limpar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Preview da Transferência -->
+    @if (selectedFrom() && selectedTo() && form.get('amount')?.value > 0) {
+      <div class="card">
+        <div class="card-header">
+          <h3>👁️ Preview da Transferência</h3>
+        </div>
+        <div class="card-body">
+          <div class="transfer-preview">
+            <!-- Origem -->
+            <div class="preview-item">
+              <h4>📤 Origem</h4>
+              <p class="beneficio-name">{{ selectedFrom()?.nome }}</p>
+              <div class="saldo-info">
+                <div>
+                  <span class="label">Saldo Atual:</span>
+                  <span class="value">{{ formatarValor(selectedFrom()!.valor) }}</span>
+                </div>
+                <div>
+                  <span class="label">Saldo Após:</span>
+                  <span class="value" [class.text-danger]="calcularSaldoAposTransferencia(selectedFrom(), 'from') < 0">
+                    {{ formatarValor(calcularSaldoAposTransferencia(selectedFrom(), 'from')) }}
+                  </span>
+                </div>
+              </div>
+              @if (calcularSaldoAposTransferencia(selectedFrom(), 'from') < 0) {
+                <p class="text-danger mt-2">
+                  ⚠️ Saldo insuficiente!
+                </p>
+              }
+            </div>
+
+            <!-- Seta -->
+            <div class="transfer-arrow">
+              <div class="arrow">→</div>
+              <div class="amount">{{ formatarValor(form.get('amount')?.value) }}</div>
+            </div>
+
+            <!-- Destino -->
+            <div class="preview-item">
+              <h4>📥 Destino</h4>
+              <p class="beneficio-name">{{ selectedTo()?.nome }}</p>
+              <div class="saldo-info">
+                <div>
+                  <span class="label">Saldo Atual:</span>
+                  <span class="value">{{ formatarValor(selectedTo()!.valor) }}</span>
+                </div>
+                <div>
+                  <span class="label">Saldo Após:</span>
+                  <span class="value text-success">
+                    {{ formatarValor(calcularSaldoAposTransferencia(selectedTo(), 'to')) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Informações -->
+  <div class="card mt-3">
+    <div class="card-body">
+      <h4>ℹ️ Informações Importantes</h4>
+      <ul class="info-list">
+        <li>✅ Ambos os benefícios devem estar ativos</li>
+        <li>✅ O valor deve ser maior que zero</li>
+        <li>✅ O benefício de origem deve ter saldo suficiente</li>
+        <li>✅ A transferência não pode ser desfeita</li>
+        <li>✅ As validações são realizadas no servidor</li>
+        <li>✅ O sistema usa locking para evitar problemas de concorrência</li>
+      </ul>
+    </div>
+  </div>
+}
+
+

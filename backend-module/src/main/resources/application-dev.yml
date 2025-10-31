@@ -1,0 +1,41 @@
+spring:
+  # Configuração do Datasource para Desenvolvimento (H2)
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+    
+  # Configuração do H2 Console
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Configuração do JPA para H2
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+    defer-datasource-initialization: true
+
+  # SQL Initialization para H2
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+
+# Logging para Desenvolvimento
+logging:
+  level:
+    root: INFO
+    com.example.backend: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+

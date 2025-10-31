@@ -1,0 +1,39 @@
+spring:
+  # Configuração do Datasource para Produção (PostgreSQL)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/beneficios_db
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  # Configuração do JPA para Produção
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  sql:
+    init:
+      mode: never
+
+# Logging para Produção
+logging:
+  level:
+    root: WARN
+    com.example.backend: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+
+
+
+
+
+
